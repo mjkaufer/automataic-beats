@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css?family=Supermercado+One');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
+h1, h2, h3 {
+    font-family: 'Supermercado One', cursive;
+}
+
+body {
+    margin: 0;
+    color: #333;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.daw, .info {
+    padding: 1em;
+    text-align: center;
+}
+
+@keyframes move-right {
+    0% {
+        background-position-x: 0;
+    } 100% {
+        background-position-x: 4em;
+    }
+}
+
+@keyframes oscillate-up {
+    0% {
+        background-position-y: -1em;
+    } 50% {
+        background-position-y: -1.25em;
+    }
+}
+
+.info > h1 {
+    font-size: 4em;
+    margin-bottom: 0;
+}
+
+#beats {
+
+    margin: 1em auto;
+    padding: 1em;
+
+    background-color: #333;
+    border-radius: 1em;
+}
+
+.beat-row {
+    text-align: center;
+}
+
+.beat-row:nth-of-type(odd) > .beat-element {
+    filter: brightness(0.8);
+}
+
+.beat-element {
+    width: 1em;
+    height: 1em;
+
+    background-color: #eee;
+
+    display: inline-block;
+    margin: 0.25em;
+
+    transition: 0.1s all;
+}
+
+.beat-element.on {
+    background-color: #00cec9;
+}
+
+.active {
+    opacity: 0.5;
+}
