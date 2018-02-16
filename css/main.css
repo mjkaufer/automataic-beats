@@ -73,3 +73,8 @@ body {
 .active {
     opacity: 0.5;
 }
+
+p {
+    padding: 0;
+    margin: 0.25em;
+}
