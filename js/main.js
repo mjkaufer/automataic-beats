@@ -232,6 +232,59 @@ function updateCells() {
 
 }
 
+function exportRow(rowNum) {
+    var row = document.getElementsByClassName(beatRowClassName)[rowNum];
+
+    var binaryRepresentation = 0;
+
+    for (var i = 0; i < row.children.length; i++) {
+        binaryRepresentation *= 2;
+        binaryRepresentation += (isActive(getCell(rowNum, i)) ? 1 : 0);
+
+    }
+
+    return binaryRepresentation.toString(16);
+}
+
+function exportPiece() {
+    var beatRows = document.getElementsByClassName(beatRowClassName);
+    var representationString = '';
+
+    for (var i = 0; i < beatRows.length; i++) {
+        representationString += exportRow(i) + ';';
+    }
+
+    return representationString;
+}
+
+function importRow(rowNum, representationString) {
+    var row = document.getElementsByClassName(beatRowClassName)[rowNum];
+
+    var binary = parseInt(representationString, 16);
+
+    for (var i = row.children.length - 1; i >= 0; i--) {
+        var value = binary % 2;
+        binary = Math.floor(binary / 2);
+
+        setActive(getCell(rowNum, i), value == 1);
+
+    }
+}
+
+function importPiece(representationString) {
+    var representationArray = representationString.split(';');
+
+    for (var i = 0; i < representationArray.length; i++) {
+        var val = representationArray[i];
+
+        if (val == "") {
+            continue;
+        }
+
+        importRow(i, val);
+    }
+}
+
 function clearCells() {
     var rows = noteRange;
     var cols = beatCount;
