@@ -13,7 +13,7 @@ var toggledBeatClassName = 'on';
 var selectedBeatClassName = 'active';
 
 
-var rootNote = 60;
+var rootNote = 54;
 
 var pentatonicMinorIntervals = [0, 3, 5, 7, 10];
 
