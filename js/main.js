@@ -162,13 +162,16 @@ function playNote(midiNote) {
         currentInstrument.play({pitch: midiToFreq(midiNote)});
     }
 
-    output.send([0x90, midiNote, 100]);
+    if (output !== null) {
+        output.send([0x90, midiNote, 100]);
 
-    (function(midiNote) {
-        setTimeout(function() {
-            output.send([0x80, midiNote, 100]);
-        }, midiDuration);
-    })(midiNote);
+        (function(midiNote) {
+            setTimeout(function() {
+                output.send([0x80, midiNote, 100]);
+            }, midiDuration);
+        })(midiNote);    
+    }
+    
 }
 
 function midiToFreq(midi) {
