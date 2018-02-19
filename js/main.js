@@ -12,7 +12,6 @@ var beatElementClassName = 'beat-element';
 var toggledBeatClassName = 'on';
 var selectedBeatClassName = 'active';
 
-
 var rootNote = 54;
 
 var pentatonicMinorIntervals = [0, 3, 5, 7, 10];
@@ -24,6 +23,10 @@ var beatContainer = document.getElementById(beatContainerId);
 var noteList = generateNoteList(pentatonicMinorIntervals, noteRange);
 
 var audioOutput = true;
+
+var midi = null;
+var output = null;
+var midiDuration = 100;
 
 for (var i = 0; i < noteRange; i++) {
 
@@ -156,8 +159,16 @@ function updateNotes(newNoteList) {
 
 function playNote(midiNote) {
     if (audioOutput) {
-        currentInstrument.play({pitch: midiToFreq(midiNote)});    
+        currentInstrument.play({pitch: midiToFreq(midiNote)});
     }
+
+    output.send([0x90, midiNote, 100]);
+
+    (function(midiNote) {
+        setTimeout(function() {
+            output.send([0x80, midiNote, 100]);
+        }, midiDuration);
+    })(midiNote);
 }
 
 function midiToFreq(midi) {
@@ -357,3 +368,16 @@ function generateNoteList(scale, noteCount) {
 
     return noteList;
 }
+
+
+function onMIDISuccess( midiAccess ) {
+    console.log( "MIDI ready!" );
+    midi = midiAccess;
+    output = midi.outputs.values().next().value;
+}
+
+function onMIDIFailure(msg) {
+    console.log( "Failed to get MIDI access - " + msg );
+}
+
+navigator.requestMIDIAccess().then( onMIDISuccess, onMIDIFailure );
