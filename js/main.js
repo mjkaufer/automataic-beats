@@ -86,11 +86,26 @@ random.onclick = randomCells
 
 
 function playColumnNotes(columnNotes) {
-    columnNotes.filter(function(element) {
+
+    var activeNotes = columnNotes.filter(function(element) {
         return element.classList.contains(toggledBeatClassName);
-    }).forEach(function(element) {
-        playNote(element.getAttribute('note'));
-    })
+    }).map(function(element) {
+        return element.getAttribute('note');
+    });
+
+    console.log(activeNotes);
+
+    activeNotes.forEach(function(note) {
+        playNote(note);
+    });
+
+    var midiNotesToPlay = pickBestNotes(activeNotes, maxPlayableNotes);
+
+    midiNotesToPlay.forEach(function(note) {
+        sendNote(note);
+    });
+
+    console.log(midiNotesToPlay.length)
 }
 
 function setBpm(newBpm) {
@@ -159,20 +174,24 @@ function updateNotes(newNoteList) {
 }
 
 function playNote(midiNote) {
-    if (audioOutput) {
-        currentInstrument.play({pitch: midiToFreq(midiNote)});
-    }
+    currentInstrument.play({pitch: midiToFreq(midiNote)});
+}
 
-    if (output !== undefined) {
-        output.send([0x90, midiNote, 100]);
-
-        (function(midiNote) {
-            setTimeout(function() {
-                output.send([0x80, midiNote, 100]);
-            }, midiDuration);
-        })(midiNote);    
+function sendNote(midiNote) {
+    if (output === undefined) {
+        return false;
     }
     
+    output.send([0x90, midiNote, 100]);
+
+    (function(midiNote) {
+        setTimeout(function() {
+            output.send([0x80, midiNote, 100]);
+        }, midiDuration);
+    })(midiNote);
+
+    return true;
+
 }
 
 function midiToFreq(midi) {
@@ -389,20 +408,43 @@ function pickBestNotes(noteArray, noteCount) {
     // this should work pretty well on a pentatonic scale, but more TLC will be needed if we want
     // it to work well on a diatonic or, god forbid, a chromatic scale
 
-    var map = {};
+    if (noteArray.length <= noteCount) {
+        return noteArray;
+    }
+
+    var map = new Array(12).fill([]);
 
     noteArray.forEach(function(note) {
-
-        if (map[note % 12] === undefined) {
-            map[note % 12] = [];
-        }
-
         map[note % 12].push(note);
     });
 
     // cycle through count of notes, pick one of each as we go through, loop til we're out of notes or have `noteCount` notes
     // if length is even, pick first note, otherwise pick last note left in array
+    map = map.sort(function(noteArrA, noteArrB) {
+        return noteArrB.length - noteArrA.length;
+    });
 
+    var finalNotesToPlay = [];
+
+    // measure whether we want the first or last note in the array of similar notes
+    // we'll have this alternate, and hopefully we'll get a decent distribution of notes that
+    // spans shimon's playable range
+    var pickFromLeft = true;
+
+    while (finalNotesToPlay.length < noteCount) {
+        var noteIndex = finalNotesToPlay.length;
+
+        var subNoteArray = map[noteIndex];
+
+        var indexToSelectFrom = pickFromLeft ? 0 : (subNoteArray.length - 1);
+
+        var noteToAdd = subNoteArray.splice(indexToSelectFrom, 1);
+        finalNotesToPlay.push(noteToAdd);
+
+        pickFromLeft = !pickFromLeft;
+    }
+
+    return finalNotesToPlay;
 
 }
 
