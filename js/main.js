@@ -15,6 +15,7 @@ var selectedBeatClassName = 'active';
 var rootNote = 54;
 
 var pentatonicMinorIntervals = [0, 3, 5, 7, 10];
+var maxPlayableNotes = 4;
 
 var currentInstrument = bass;
 
@@ -24,8 +25,8 @@ var noteList = generateNoteList(pentatonicMinorIntervals, noteRange);
 
 var audioOutput = true;
 
-var midi = null;
-var output = null;
+var midi = undefined;
+var output = undefined;
 var midiDuration = 100;
 
 for (var i = 0; i < noteRange; i++) {
@@ -162,7 +163,7 @@ function playNote(midiNote) {
         currentInstrument.play({pitch: midiToFreq(midiNote)});
     }
 
-    if (output !== null) {
+    if (output !== undefined) {
         output.send([0x90, midiNote, 100]);
 
         (function(midiNote) {
@@ -381,6 +382,28 @@ function onMIDISuccess( midiAccess ) {
 
 function onMIDIFailure(msg) {
     console.log( "Failed to get MIDI access - " + msg );
+}
+
+function pickBestNotes(noteArray, noteCount) {
+    // because shimon can only play 4 notes
+    // this should work pretty well on a pentatonic scale, but more TLC will be needed if we want
+    // it to work well on a diatonic or, god forbid, a chromatic scale
+
+    var map = {};
+
+    noteArray.forEach(function(note) {
+
+        if (map[note % 12] === undefined) {
+            map[note % 12] = [];
+        }
+
+        map[note % 12].push(note);
+    });
+
+    // cycle through count of notes, pick one of each as we go through, loop til we're out of notes or have `noteCount` notes
+    // if length is even, pick first note, otherwise pick last note left in array
+
+
 }
 
 navigator.requestMIDIAccess().then( onMIDISuccess, onMIDIFailure );
