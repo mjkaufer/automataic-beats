@@ -14,14 +14,34 @@ var selectedBeatClassName = 'active';
 
 var rootNote = 54;
 
-var pentatonicMinorIntervals = [0, 3, 5, 7, 10];
+var pentatonicMajor = [0, 2, 4, 7, 9];
+var pentatonicMinor = [0, 3, 5, 7, 10];
+
+var rootPentatonicMajor = pentatonicMajor;
+
+var majorFifthPentatonicMajor = rootPentatonicMajor.map(function(e) {
+    return e + 7 - 12;
+});
+
+var majorFourthPentatonicMajor = rootPentatonicMajor.map(function(e) {
+    return e + 5;
+});
+
+var minorSixthPentatonicMinor = pentatonicMinor.map(function(e) {
+    return e + 9 - 12;
+});
+
+var scaleProgressions = [rootPentatonicMajor, majorFifthPentatonicMajor, minorSixthPentatonicMinor, majorFourthPentatonicMajor];
+var parity = 0;
+
 var maxPlayableNotes = 4;
 
 var currentInstrument = bass;
 
 var beatContainer = document.getElementById(beatContainerId);
 
-var noteList = generateNoteList(pentatonicMinorIntervals, noteRange);
+var noteList = scaleProgressions[parity];
+switchScales(noteList);
 
 var audioOutput = true;
 
@@ -71,6 +91,7 @@ function togglePlaying() {
 var toggle = document.getElementById('toggle');
 
 toggle.onclick = function() {
+    updateScaleChord();
     var isPlaying = togglePlaying();
 
     toggle.innerHTML = isPlaying ? 'Stop' : 'Start';
@@ -90,10 +111,8 @@ function playColumnNotes(columnNotes) {
     var activeNotes = columnNotes.filter(function(element) {
         return element.classList.contains(toggledBeatClassName);
     }).map(function(element) {
-        return element.getAttribute('note');
+        return parseInt(element.getAttribute('note'));
     });
-
-    console.log(activeNotes);
 
     activeNotes.forEach(function(note) {
         playNote(note);
@@ -104,8 +123,6 @@ function playColumnNotes(columnNotes) {
     midiNotesToPlay.forEach(function(note) {
         sendNote(note);
     });
-
-    console.log(midiNotesToPlay.length)
 }
 
 function setBpm(newBpm) {
@@ -121,6 +138,7 @@ function setBpm(newBpm) {
         currentColumn %= beatCount;
 
         if (currentColumn == 0) {
+            updateScaleChord();
             updateCells();
         }
     }, 1 / bpm * 60 * 1000);
@@ -153,12 +171,11 @@ function selectColumn(colNum) {
 }
 
 function switchScales(scale) {
-    var newNoteList = generateNoteList(scale, noteRange);
-    updateNotes(newNoteList);
+    noteList = generateNoteList(scale, noteRange);
+    updateNotes();
 }
 
-function updateNotes(newNoteList) {
-
+function updateNotes() {
     var beatRows = document.getElementsByClassName(beatRowClassName);
 
     for (var i = 0; i < beatRows.length; i++) {
@@ -168,8 +185,6 @@ function updateNotes(newNoteList) {
             beatRow.children[j].setAttribute('note', noteList[i]);
         }
     }
-
-    noteList = newNoteList;
 
 }
 
@@ -247,11 +262,13 @@ function updateCells() {
     var cols = beatCount;
     
     var tempGrid = new Array(rows);
+    var livingCount = 0;
 
     for (var i = 0; i < rows; i++) {
         tempGrid[i] = new Array(cols);
         for (var j = 0; j < rows; j++) {
             tempGrid[i][j] = isCellAliveInNextState(i, j);
+            livingCount += tempGrid[i][j] ? 1 : 0;
         }
     }
 
@@ -264,6 +281,23 @@ function updateCells() {
         }
     }
 
+}
+
+function updateScaleChord() {
+    var rows = noteRange;
+    var cols = beatCount;
+    var livingCount = 0;
+
+    for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < rows; j++) {
+            var cell = getCell(i, j);
+            livingCount += isActive(cell) ? 1 : 0;
+
+        }
+    }
+
+    parity = livingCount % scaleProgressions.length;
+    switchScales(scaleProgressions[parity]);
 }
 
 function exportRow(rowNum) {
