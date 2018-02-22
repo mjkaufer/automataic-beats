@@ -298,6 +298,7 @@ function updateScaleChord() {
 
     parity = livingCount % scaleProgressions.length;
     switchScales(scaleProgressions[parity]);
+    console.log("Parity of", parity);
 }
 
 function exportRow(rowNum) {
