@@ -2,6 +2,7 @@ var beatCount = 16;
 var noteRange = 16;
 var currentColumn = 0;
 var beatInterval = undefined;
+var hearRealisticOutput = false;
 
 var bpm = 200;
 var colorDelay = 100;
@@ -87,8 +88,6 @@ slider.onchange = function(e) {
     
 }
 
-// setBpm(bpm);
-
 function togglePlaying() {
     if (beatInterval !== undefined) {
         clearInterval(beatInterval);
@@ -126,15 +125,25 @@ function playColumnNotes(columnNotes) {
         return parseInt(element.getAttribute('note'));
     });
 
-    activeNotes.forEach(function(note) {
-        playNote(note);
-    });
+
 
     var midiNotesToPlay = pickBestNotes(activeNotes, maxPlayableNotes);
 
     midiNotesToPlay.forEach(function(note) {
         sendNote(note);
     });
+
+
+    if (hearRealisticOutput) {
+        midiNotesToPlay.forEach(function(note) {
+            playNote(note);
+        });
+    } else {
+        activeNotes.forEach(function(note) {
+            playNote(note);
+        });
+    }
+    
 }
 
 function setBpm(newBpm) {
