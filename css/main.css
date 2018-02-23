@@ -78,3 +78,34 @@ p {
     padding: 0;
     margin: 0.25em;
 }
+
+.slider {
+    display: block;
+    margin: 1em auto;
+    -webkit-appearance: none;
+    width: 50%;
+    height: 1em;
+    border-radius: 0.5em;
+    background: #333;
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%; 
+    background: #00cec9;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    background: #00cec9;
+    cursor: pointer;
+}

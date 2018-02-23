@@ -1,7 +1,7 @@
 var beatCount = 16;
 var noteRange = 16;
 var currentColumn = 0;
-var beatInterval = null;
+var beatInterval = undefined;
 
 var bpm = 200;
 var colorDelay = 100;
@@ -11,6 +11,7 @@ var beatRowClassName = 'beat-row';
 var beatElementClassName = 'beat-element';
 var toggledBeatClassName = 'on';
 var selectedBeatClassName = 'active';
+var sliderId = 'bpmSlider';
 
 var rootNote = 54;
 
@@ -39,6 +40,7 @@ var maxPlayableNotes = 4;
 var currentInstrument = bass;
 
 var beatContainer = document.getElementById(beatContainerId);
+var slider = document.getElementById(sliderId);
 
 var noteList = scaleProgressions[parity];
 switchScales(noteList);
@@ -75,12 +77,22 @@ for (var i = 0; i < noteRange; i++) {
     beatContainer.appendChild(noteRow)
 }
 
+slider.onchange = function(e) {
+    newBpm = parseInt(e.target.value);
+    if (beatInterval === undefined) {
+        bpm = newBpm;
+    } else {
+        setBpm(newBpm);
+    }
+    
+}
+
 // setBpm(bpm);
 
 function togglePlaying() {
-    if (beatInterval != null) {
+    if (beatInterval !== undefined) {
         clearInterval(beatInterval);
-        beatInterval = null;
+        beatInterval = undefined;
         return false;
     } else {
         setBpm(bpm);
